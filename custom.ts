@@ -95,7 +95,7 @@ namespace microbit_CAR{
     //var
     let lineSensorThrold : number = 400;
     let edgeSensorThrold : number = 400;
-    let lhRGBLight: RGBLight.LHRGBLight;
+    let lhRGBLight: MICROBITRGBLight.MICROBITLHRGBLight;
 
     //% blockId=mbit_IoSet block="设置引脚|%pin 值为|%value"
     //% weight=100
@@ -225,7 +225,7 @@ namespace microbit_CAR{
 	 */
 	function initRGBLight() {
 		if (!lhRGBLight) {
-			lhRGBLight = RGBLight.create(DigitalPin.P12, 4, RGBPixelMode.RGB);
+			lhRGBLight = MICROBITRGBLight.create(DigitalPin.P12, 4, RGBPixelMode.RGB);
 		}
     }
     

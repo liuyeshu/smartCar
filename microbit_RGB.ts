@@ -40,7 +40,7 @@ enum RGBPixelMode {
 /**
  * RGBLight Functions
  */
-namespace RGBLight {
+namespace MICROBITRGBLight {
     //% shim=sendBufferAsm
     //% parts="RGBLight"
     function sendBuffer(buf: Buffer, pin: DigitalPin) {
@@ -50,7 +50,7 @@ namespace RGBLight {
     /**
     * A RGBLight class
     */
-    export class LHRGBLight {
+    export class MICROBITLHRGBLight {
         buf: Buffer;
         pin: DigitalPin;
         // TODO: encode as bytes instead of 32bit
@@ -181,8 +181,8 @@ namespace RGBLight {
             this.show();
         }
     }
-    export function create(pin: DigitalPin, numleds: number, mode: RGBPixelMode): LHRGBLight {
-        let light = new LHRGBLight();
+    export function create(pin: DigitalPin, numleds: number, mode: RGBPixelMode): MICROBITLHRGBLight {
+        let light = new MICROBITLHRGBLight();
         let stride = mode === RGBPixelMode.RGBW ? 4 : 3;
         light.buf = pins.createBuffer(numleds * stride);
         light.start = 0;

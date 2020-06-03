@@ -16,7 +16,7 @@
         "ReceiverIR.cpp",
         "ReceiverIR.h",
         "RemoteIR.h",
-        "RGBLight.ts",
+        "microbit_RGB.ts",
         "sendbuffer.asm"
     ],
     "testFiles": [

@@ -8,12 +8,27 @@
  *    智能小车 *****************************************************************************************************************************
  ****************************************************************************************************************************************/
 //% color="#FF7F00" weight=21 icon="\uf185"
-namespace microbit_小车 {
-    export enum LedState {
-        //% blockId="STATE_OFF" block="关闭"
-        OFF = 0,
-        //% blockId="STATE_ON" block="开启"
-        ON 
+namespace microbit_CAR{
+
+    export enum Colors {
+        //% blockId="Red" block="红色"
+        Red = 0x01,
+        //% blockId="Green" block="绿色"
+        Green = 0x02,
+        //% blockId="Blue" block="蓝色"
+		Blue = 0x03
+    }
+
+    export enum Lights {
+        //% block="灯1"
+        Light1 = 0x00,
+        //% block="灯2"
+        Light2 = 0x01,
+        //% block="灯3"
+        Light3 = 0x02,
+        //% block="灯4"
+        Light4 = 0x03,
+        All = 0x04
     }
 
     export enum LedForwardIndex {
@@ -42,30 +57,6 @@ namespace microbit_小车 {
         LEFT = 0,
         //% blockId="RIGHT" block="右边"
         RIGHT 
-    }
-
-    export enum MusicIndex {
-        dadadum = 0,
-        entertainer,
-        prelude,
-        ode,
-        nyan,
-        ringtone,
-        funk,
-        blues,
-
-        birthday,
-        wedding,
-        funereal,
-        punchline,
-        baddy,
-        chase,
-        ba_ding,
-        wawawawaa,
-        jump_up,
-        jump_down,
-        power_up,
-        power_down
     }
 
     export enum MotorIndex {
@@ -104,6 +95,7 @@ namespace microbit_小车 {
     //var
     let lineSensorThrold : number = 400;
     let edgeSensorThrold : number = 400;
+    let lhRGBLight: RGBLight.LHRGBLight;
 
     //% blockId=mbit_IoSet block="设置引脚|%pin 值为|%value"
     //% weight=100
@@ -114,37 +106,6 @@ namespace microbit_小车 {
 
         pins.setPull(pin, PinPullMode.PullUp);
         pins.digitalWritePin(pin, value);
-    }
-
-    //% blockId=mbit_LedForwardCtrl block="设置 |%index 前照灯状态为|%state"
-    //% weight=100
-    //% blockGap=10
-    //% color="#FF7F00"
-    export function LedForwardCtrl(index: LedForwardIndex, state: LedState): void {
-        if(LedForwardIndex.LEFT == index)
-        {
-            pins.setPull(DigitalPin.P12, PinPullMode.PullUp);
-            if(LedState.ON == state)
-            {
-                pins.digitalWritePin(DigitalPin.P12, 1);
-            }
-            else
-            {
-                pins.digitalWritePin(DigitalPin.P12, 0);
-            }
-        }
-        else
-        {
-            pins.setPull(DigitalPin.P16, PinPullMode.PullUp);
-            if(LedState.ON == state)
-            {
-                pins.digitalWritePin(DigitalPin.P16, 1);
-            }
-            else
-            {
-                pins.digitalWritePin(DigitalPin.P16, 0);
-            }
-        }
     }
 
     //% blockId=mbit_MotroCtrl block="设置 |%index 电机状态为|%state"
@@ -259,29 +220,88 @@ namespace microbit_小车 {
         }
     }
 
-    //% blockId=mbit_LedRGBCtrl block="设置彩灯 红色 |%redValue 绿色 |%greenValue 蓝色 |%blueValue"
-    //% weight=100
+    /**
+	 * Initialize RGB
+	 */
+	function initRGBLight() {
+		if (!lhRGBLight) {
+			lhRGBLight = RGBLight.create(DigitalPin.P12, 4, RGBPixelMode.RGB);
+		}
+    }
+    
+    /**
+         * Set the brightness of the strip. This flag only applies to future operation.
+         * @param brightness a measure of LED brightness in 0-255. eg: 255
+    */
+    //% blockId="mbit_setBrightness" block="设置彩灯亮度 %brightness"
+    //% weight=87
     //% blockGap=10
-    //% color="#FF7F00"
-    //% redValue.min=0 redValue.max=255
-    //% greenValue.min=0 greenValue.max=255
-    //% blueValue.min=0 blueValue.max=255
-    export function LedRGBCtrl(redValue: number, greenValue: number, blueValue: number): void {
-        led.enable(false);
-        //red
-        pins.analogWritePin(AnalogPin.P7, redValue * 1024 / 256);
-        
-        //green
-        pins.analogWritePin(AnalogPin.P9, greenValue * 1024 / 256);
+    //% color="#8E236B"
+    //% brightness.min=0 brightness.max=255
+    export function setBrightness(brightness: number): void {
+        //init
+        initRGBLight();
+        lhRGBLight.setBrightness(brightness);
+    }
+     
+    /**
+     * Set the color of the colored lights, after finished the setting please perform  the display of colored lights.
+     */
+    //% blockId=mbit_setPixelRGB block="设置彩灯| %lightoffset|颜色为 %rgb"
+    //% weight=86
+    //% blockGap=10
+    //% color="#8E236B"
+    export function setPixelRGB(lightoffset: Lights, rgb: RGBColors)
+    {
+        //init
+        initRGBLight();
+        lhRGBLight.setPixelColor(lightoffset, rgb);
+    }
+    /**
+     * Set RGB Color argument
+     */
+    //% blockId=mbit_setPixelRGBArgs block="设置彩灯| %lightoffset|颜色为 %rgb"
+    //% weight=85
+    //% blockGap=10
+    //% color="#8E236B"
+    export function setPixelRGBArgs(lightoffset: Lights, rgb: number)
+    {
+        //init
+        initRGBLight();
+        lhRGBLight.setPixelColor(lightoffset, rgb);
+    }
 
-        //blue
-        pins.analogWritePin(AnalogPin.P6, blueValue * 1024 / 256);
+    /**
+     * Display the colored lights, and set the color of the colored lights to match the use. After setting the color of the colored lights, the color of the lights must be displayed.
+     */
+    //% blockId=mbit_showLight block="显示彩灯"
+    //% weight=84
+    //% blockGap=10
+    //% color="#8E236B"
+    export function showLight() {
+        //init
+        initRGBLight();
+        lhRGBLight.show();
+    }
+
+    /**
+     * Clear the color of the colored lights and turn off the lights.
+     */
+    //% blockId=mbit_mbit_clearLight block="关闭彩灯"
+    //% weight=83
+    //% blockGap=10
+    //% color="#8E236B"
+    export function clearLight() {
+        //init
+        initRGBLight();
+        //operate
+        lhRGBLight.clear();
     }
 
     //% blockId=mbit_LineSensorChk block="检测到 |%index 寻迹传感器状态为 |%state"
     //% weight=100
     //% blockGap=10
-    //% color="#FF7F00"
+    //% color="#9932CD"
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=12
     export function LineSensorChk(index: LineSensorIndex, state: LineState): boolean {
 
@@ -323,7 +343,7 @@ namespace microbit_小车 {
     //% blockId=mbit_LineSensorThreshold block="初始化寻迹传感器灵敏度（10-100） |%value"
     //% weight=100
     //% blockGap=10
-    //% color="#FF7F00"
+    //% color="#9932CD"
     //% value.min=10 value.max=100
     export function mbit_LineSensorThreshold(value: number): void {
         lineSensorThrold = (100-value)*1024/100;
@@ -332,7 +352,7 @@ namespace microbit_小车 {
     //% blockId=mbit_EdgeSensorChk block="|%index 边缘传感器检查到边缘"
     //% weight=100
     //% blockGap=10
-    //% color="#FF7F00"
+    //% color="#9932CD"
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=12
     export function EdgeSensorChk(index: LineSensorIndex): boolean {
         switch (index) {
@@ -359,7 +379,7 @@ namespace microbit_小车 {
     //% blockId=mbit_EdgeSensorThreshold block="初始化边缘传感器灵敏度（10-100） |%value"
     //% weight=100
     //% blockGap=10
-    //% color="#FF7F00"
+    //% color="#9932CD"
     //% value.min=10 value.max=100
     export function mbit_EdgeSensorThreshold(value: number): void {
         edgeSensorThrold = (100-value)*1024/100;
@@ -368,7 +388,7 @@ namespace microbit_小车 {
     //% blockId=mbit_LightSensorValueGet block="|%index 亮度传感器值(0-100)"
     //% weight=100
     //% blockGap=10
-    //% color="#FF7F00"
+    //% color="#0000FF"
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=12
     export function LightSensorValueGet(index: LightSensorIndex): number {
 
@@ -391,7 +411,7 @@ namespace microbit_小车 {
     }
 
     //% blockId=mbit_UltraSensorValueGet block="超声检测距离(cm)"
-    //% color="#FF7F00"
+    //% color="#0000FF"
     //% weight=100
     //% blockGap=10
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
@@ -415,33 +435,11 @@ namespace microbit_小车 {
         return  Math.floor(length);
     }
 
-    //% blockId=mbit_MusicPlay block="播放音乐 |%index"
-    //% weight=97
+    //% blockId=mbit_carInit block="初始化小车"
+    //% weight=100
     //% blockGap=10
-    //% color="#006400"
-    //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
-    export function Music_Car(index: MusicIndex): void {
-        switch (index) {
-            case MusicIndex.dadadum: music.beginMelody(music.builtInMelody(Melodies.Dadadadum), MelodyOptions.Once); break;
-            case MusicIndex.birthday: music.beginMelody(music.builtInMelody(Melodies.Birthday), MelodyOptions.Once); break;
-            case MusicIndex.entertainer: music.beginMelody(music.builtInMelody(Melodies.Entertainer), MelodyOptions.Once); break;
-            case MusicIndex.prelude: music.beginMelody(music.builtInMelody(Melodies.Prelude), MelodyOptions.Once); break;
-            case MusicIndex.ode: music.beginMelody(music.builtInMelody(Melodies.Ode), MelodyOptions.Once); break;
-            case MusicIndex.nyan: music.beginMelody(music.builtInMelody(Melodies.Nyan), MelodyOptions.Once); break;
-            case MusicIndex.ringtone: music.beginMelody(music.builtInMelody(Melodies.Ringtone), MelodyOptions.Once); break;
-            case MusicIndex.funk: music.beginMelody(music.builtInMelody(Melodies.Funk), MelodyOptions.Once); break;
-            case MusicIndex.blues: music.beginMelody(music.builtInMelody(Melodies.Blues), MelodyOptions.Once); break;
-            case MusicIndex.wedding: music.beginMelody(music.builtInMelody(Melodies.Wedding), MelodyOptions.Once); break;
-            case MusicIndex.funereal: music.beginMelody(music.builtInMelody(Melodies.Funeral), MelodyOptions.Once); break;
-            case MusicIndex.punchline: music.beginMelody(music.builtInMelody(Melodies.Punchline), MelodyOptions.Once); break;
-            case MusicIndex.baddy: music.beginMelody(music.builtInMelody(Melodies.Baddy), MelodyOptions.Once); break;
-            case MusicIndex.chase: music.beginMelody(music.builtInMelody(Melodies.Chase), MelodyOptions.Once); break;
-            case MusicIndex.ba_ding: music.beginMelody(music.builtInMelody(Melodies.BaDing), MelodyOptions.Once); break;
-            case MusicIndex.wawawawaa: music.beginMelody(music.builtInMelody(Melodies.Wawawawaa), MelodyOptions.Once); break;
-            case MusicIndex.jump_up: music.beginMelody(music.builtInMelody(Melodies.JumpUp), MelodyOptions.Once); break;
-            case MusicIndex.jump_down: music.beginMelody(music.builtInMelody(Melodies.JumpDown), MelodyOptions.Once); break;
-            case MusicIndex.power_up: music.beginMelody(music.builtInMelody(Melodies.PowerUp), MelodyOptions.Once); break;
-            case MusicIndex.power_down: music.beginMelody(music.builtInMelody(Melodies.PowerDown), MelodyOptions.Once); break;
-        }
+    //% color="#FF7F00"
+    export function carInit(): void {
+        //
     }
 }

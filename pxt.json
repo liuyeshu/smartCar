@@ -9,7 +9,15 @@
         "main.blocks",
         "main.ts",
         "README.md",
-        "custom.ts"
+        "custom.ts",
+        "enums.d.ts",
+        "microbit_IR.ts",
+        "microbit_IR.cpp",
+        "ReceiverIR.cpp",
+        "ReceiverIR.h",
+        "RemoteIR.h",
+        "RGBLight.ts",
+        "sendbuffer.asm"
     ],
     "testFiles": [
         "test.ts"
@@ -17,7 +25,7 @@
     "supportedTargets": [
         "microbit"
     ],
-    "preferredEditor": "blocksprj",
+    "preferredEditor": "tsprj",
     "yotta": {
         "config": {
             "microbit-dal": {
